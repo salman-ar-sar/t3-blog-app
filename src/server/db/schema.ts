@@ -23,7 +23,8 @@ export const posts = createTable(
   "post",
   {
     id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
+    name: varchar("name", { length: 256 }).notNull(),
+    description: varchar("description", { length: 1024 }).notNull(),
     createdById: varchar("createdById", { length: 255 })
       .notNull()
       .references(() => users.id),
@@ -35,7 +36,7 @@ export const posts = createTable(
   (example) => ({
     createdByIdIdx: index("createdById_idx").on(example.createdById),
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
 
 export const users = createTable("user", {
@@ -76,7 +77,7 @@ export const accounts = createTable(
       columns: [account.provider, account.providerAccountId],
     }),
     userIdIdx: index("account_userId_idx").on(account.userId),
-  })
+  }),
 );
 
 export const accountsRelations = relations(accounts, ({ one }) => ({
@@ -96,7 +97,7 @@ export const sessions = createTable(
   },
   (session) => ({
     userIdIdx: index("session_userId_idx").on(session.userId),
-  })
+  }),
 );
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -112,5 +113,5 @@ export const verificationTokens = createTable(
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
