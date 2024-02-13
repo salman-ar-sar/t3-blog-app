@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { z } from "zod";
 
 import {
@@ -8,11 +9,18 @@ import {
 import { posts } from "~/server/db/schema";
 
 export const postRouter = createTRPCRouter({
-  getLatest: publicProcedure.query(({ ctx }) => {
-    return ctx.db.query.posts.findFirst({
-      orderBy: (posts, { desc }) => [desc(posts.createdAt)],
-    });
-  }),
+  getOne: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .query(({ ctx, input }) => {
+      return ctx.db.query.posts.findFirst({
+        where: (posts, { eq }) => eq(posts.id, input.id),
+        with: { user: true },
+      });
+    }),
 
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.query.posts.findMany({
@@ -34,5 +42,15 @@ export const postRouter = createTRPCRouter({
         description: input.description,
         createdById: ctx.session.user.id,
       });
+    }),
+
+  deleteOne: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.delete(posts).where(eq(posts.id, input.id));
     }),
 });
