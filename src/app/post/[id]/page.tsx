@@ -1,8 +1,8 @@
 import { redirect } from "next/navigation";
 
-import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { api } from "~/trpc/server";
+import PostOptions from "./post-options";
 
 export default async function PostView({ params }: { params: { id: string } }) {
   const postId = Number(params.id);
@@ -12,14 +12,6 @@ export default async function PostView({ params }: { params: { id: string } }) {
   const post = await api.post.getOne.query({ id: postId });
 
   if (!post) redirect("/");
-
-  const handleDeleteClick = async () => {
-    "use server";
-
-    await api.post.deleteOne.mutate({ id: postId });
-
-    redirect("/");
-  };
 
   return (
     <section className="mx-auto my-10 grid w-full max-w-3xl gap-4">
@@ -43,10 +35,7 @@ export default async function PostView({ params }: { params: { id: string } }) {
           <p key={index}>{paragraph}</p>
         ))}
       </article>
-      <form action={handleDeleteClick} className="mx-auto my-6 flex gap-2">
-        {/* <Button variant="outline">Edit</Button> */}
-        <Button variant="destructive">Delete</Button>
-      </form>
+      <PostOptions postId={postId} />
     </section>
   );
 }
