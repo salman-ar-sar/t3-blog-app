@@ -52,7 +52,7 @@ export default function CreatePost() {
   });
 
   const { mutate: createPost, isLoading } = api.post.create.useMutation({
-    onSuccess: async () => {
+    onSuccess: () => {
       router.back();
       router.refresh();
     },
