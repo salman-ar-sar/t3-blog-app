@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { api } from "~/trpc/server";
+import { getServerAuthSession } from "~/server/auth";
 import PostOptions from "./post-options";
 
 export default async function PostView({ params }: { params: { id: string } }) {
@@ -12,6 +13,8 @@ export default async function PostView({ params }: { params: { id: string } }) {
   const post = await api.post.getOne.query({ id: postId });
 
   if (!post) redirect("/");
+
+  const session = await getServerAuthSession();
 
   return (
     <section className="mx-auto my-10 grid w-full max-w-3xl gap-4">
@@ -35,7 +38,7 @@ export default async function PostView({ params }: { params: { id: string } }) {
           <p key={index}>{paragraph}</p>
         ))}
       </article>
-      <PostOptions postId={postId} />
+      {session ? <PostOptions postId={postId} /> : null}
     </section>
   );
 }
